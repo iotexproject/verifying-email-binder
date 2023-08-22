@@ -1,3 +1,4 @@
+use core::fmt;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::borrow::Cow;
 
@@ -118,5 +119,11 @@ impl RpcError {
             message: message.into().into(),
             data: None,
         }
+    }
+}
+
+impl fmt::Display for RpcError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}: {}", self.code.message(), self.message)
     }
 }
