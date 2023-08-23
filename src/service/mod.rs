@@ -1,8 +1,11 @@
+pub mod code;
+pub mod error;
 pub mod serde_helpers;
 
-use self::serde_helpers::sequence;
 use tracing::trace;
 
+use self::error::ToRpcResponseResult;
+use self::serde_helpers::sequence;
 use crate::{rpc::response::ResponseResult, server::handler::RpcHandler};
 
 #[derive(Clone, Debug, PartialEq, Eq, serde::Deserialize)]
@@ -23,7 +26,7 @@ impl HttpRpcHandler {
     pub async fn execute(&self, request: ApiRequest) -> ResponseResult {
         trace!(target: "rpc::api", "executing eth request");
         match request {
-            ApiRequest::SendCode(email) => ResponseResult::success(email),
+            ApiRequest::SendCode(email) => code::generate_code(email).to_rpc_result(),
         }
     }
 }
