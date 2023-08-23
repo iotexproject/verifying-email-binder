@@ -29,6 +29,10 @@ fn no_params() -> RequestParams {
     RequestParams::None
 }
 
+fn null_id() -> Id {
+    Id::Null
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Id {
@@ -57,11 +61,31 @@ pub struct RpcMethodCall {
     pub id: Id,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct RpcNotification {
+    pub jsonrpc: Option<Version>,
+    pub method: String,
+    #[serde(default = "no_params")]
+    pub params: RequestParams,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(untagged)]
+pub enum RpcCall {
+    MethodCall(RpcMethodCall),
+    Notification(RpcNotification),
+    Invalid {
+        #[serde(default = "null_id")]
+        id: Id,
+    },
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields, untagged)]
 pub enum Request {
-    Single(RpcMethodCall),
-    Batch(Vec<RpcMethodCall>),
+    Single(RpcCall),
+    Batch(Vec<RpcCall>),
 }
 
 #[cfg(test)]
@@ -71,7 +95,7 @@ mod tests {
     #[test]
     fn can_serialize_batch() {
         let batch = Request::Batch(vec![
-            RpcMethodCall {
+            RpcCall::MethodCall(RpcMethodCall {
                 jsonrpc: Version::V2,
                 method: "test1".to_owned(),
                 params: RequestParams::Array(vec![
@@ -79,13 +103,13 @@ mod tests {
                     serde_json::Value::from("rust"),
                 ]),
                 id: Id::Number(1),
-            },
-            RpcMethodCall {
+            }),
+            RpcCall::MethodCall(RpcMethodCall {
                 jsonrpc: Version::V2,
                 method: "test2".to_owned(),
                 params: RequestParams::Array(vec![serde_json::Value::from(123)]),
                 id: Id::Number(2),
-            },
+            }),
         ]);
 
         let obj = serde_json::to_string(&batch).unwrap();
@@ -103,7 +127,7 @@ mod tests {
         assert_eq!(
             obj,
             Request::Batch(vec![
-                RpcMethodCall {
+                RpcCall::MethodCall(RpcMethodCall {
                     jsonrpc: Version::V2,
                     method: "test1".to_owned(),
                     params: RequestParams::Array(vec![
@@ -111,13 +135,13 @@ mod tests {
                         serde_json::Value::from("rust"),
                     ]),
                     id: Id::Number(1),
-                },
-                RpcMethodCall {
+                }),
+                RpcCall::MethodCall(RpcMethodCall {
                     jsonrpc: Version::V2,
                     method: "test2".to_owned(),
                     params: RequestParams::Array(vec![serde_json::Value::from(123)]),
                     id: Id::Number(2),
-                },
+                }),
             ]),
         );
     }
