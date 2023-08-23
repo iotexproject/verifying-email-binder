@@ -1,15 +1,9 @@
-use axum::{response::Html, routing::get, Router};
+use verifying_email_binder::{server::handler::serve_http, service::HttpRpcHandler};
 
 #[tokio::main]
 async fn main() {
-    let app = Router::new().route("/", get(handler));
-
-    axum::Server::bind(&"127.0.0.1:3000".parse().unwrap())
-        .serve(app.into_make_service())
+    let http = HttpRpcHandler::new();
+    serve_http("127.0.0.1:3000".parse().unwrap(), http)
         .await
         .unwrap();
-}
-
-async fn handler() -> Html<&'static str> {
-    Html("Hello world")
 }
