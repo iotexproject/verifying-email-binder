@@ -4,8 +4,15 @@ use tracing::error;
 
 pub(crate) type Result<T> = std::result::Result<T, ServiceError>;
 
+#[derive(Debug, Serialize)]
 pub enum ServiceError {
     DatabaseError(String),
+}
+
+impl From<sqlx::error::Error> for ServiceError {
+    fn from(value: sqlx::error::Error) -> Self {
+        ServiceError::DatabaseError(value.to_string())
+    }
 }
 
 pub(crate) trait ToRpcResponseResult {
@@ -27,7 +34,7 @@ impl<T: Serialize> ToRpcResponseResult for Result<T> {
         match self {
             Ok(val) => to_rpc_result(val),
             Err(err) => match err {
-                ServiceError::DatabaseError(str) => RpcError::invalid_params(str),
+                ServiceError::DatabaseError(err) => RpcError::invalid_params(err.to_string()),
             }
             .into(),
         }

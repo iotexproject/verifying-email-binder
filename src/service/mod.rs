@@ -2,6 +2,7 @@ pub mod code;
 pub mod error;
 pub mod serde_helpers;
 
+use sqlx::PgPool;
 use tracing::trace;
 
 use self::error::ToRpcResponseResult;
@@ -16,17 +17,21 @@ pub enum ApiRequest {
 }
 
 #[derive(Clone)]
-pub struct HttpRpcHandler {}
+pub struct HttpRpcHandler {
+    db: PgPool,
+}
 
 impl HttpRpcHandler {
-    pub fn new() -> Self {
-        HttpRpcHandler {}
+    pub fn new(db: PgPool) -> Self {
+        HttpRpcHandler { db }
     }
 
     pub async fn execute(&self, request: ApiRequest) -> ResponseResult {
         trace!(target: "rpc::api", "executing eth request");
         match request {
-            ApiRequest::SendCode(email) => code::generate_code(email).to_rpc_result(),
+            ApiRequest::SendCode(email) => {
+                code::generate_code(&self.db, email).await.to_rpc_result()
+            }
         }
     }
 }

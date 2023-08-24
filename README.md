@@ -1,6 +1,12 @@
 verifying email binder
 ======================
 
+## Run
+
+```
+export DATABASE_URL=postgres://aa_email:email@localhost:5432/aa_email
+```
+
 ## API
 
 ```bash
