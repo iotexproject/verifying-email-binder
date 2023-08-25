@@ -5,6 +5,8 @@ verifying email binder
 
 ```
 export DATABASE_URL=postgres://aa_email:email@localhost:5432/aa_email
+export RPC_URL=https://babel-api.testnet.iotex.io
+export GUARDIAN_ADDRESS=0xd8F31BC1E49d800D8B6B2AAE27219f47b94F5890
 ```
 
 ## API
@@ -13,14 +15,14 @@ export DATABASE_URL=postgres://aa_email:email@localhost:5432/aa_email
 curl -X POST http://localhost:3000 -H "Content-Type:application/json" --data '{
     "jsonrpc":"2.0",
                 "method":"send_code",
-                "params": ["test@test.com"],
+                "params": ["0x8803DAF0AB9Bad65a56F4D9AEcA56085491C299A", "test@test.com"],
     "id":1
 }'
 
 curl -X POST http://localhost:3000 -H "Content-Type:application/json" --data '{
     "jsonrpc":"2.0",
                 "method":"verify_code",
-                "params": ["test@test.com", "123456"],
+                "params": ["0x8803DAF0AB9Bad65a56F4D9AEcA56085491C299A", "test@test.com", "123456"],
     "id":1
 }'
 ```
