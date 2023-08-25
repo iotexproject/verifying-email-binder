@@ -7,6 +7,7 @@ pub(crate) type Result<T> = std::result::Result<T, ServiceError>;
 #[derive(Debug, Serialize)]
 pub enum ServiceError {
     DatabaseError(String),
+    InvalidRequest(String),
 }
 
 impl From<sqlx::error::Error> for ServiceError {
@@ -34,7 +35,8 @@ impl<T: Serialize> ToRpcResponseResult for Result<T> {
         match self {
             Ok(val) => to_rpc_result(val),
             Err(err) => match err {
-                ServiceError::DatabaseError(err) => RpcError::invalid_params(err.to_string()),
+                ServiceError::DatabaseError(err) => RpcError::internal_error_with(err.to_string()),
+                ServiceError::InvalidRequest(str) => RpcError::internal_error_with(str),
             }
             .into(),
         }

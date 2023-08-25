@@ -16,4 +16,11 @@ curl -X POST http://localhost:3000 -H "Content-Type:application/json" --data '{
                 "params": ["test@test.com"],
     "id":1
 }'
+
+curl -X POST http://localhost:3000 -H "Content-Type:application/json" --data '{
+    "jsonrpc":"2.0",
+                "method":"verify_code",
+                "params": ["test@test.com", "123456"],
+    "id":1
+}'
 ```

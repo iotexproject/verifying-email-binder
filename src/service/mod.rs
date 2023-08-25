@@ -1,6 +1,7 @@
 pub mod code;
 pub mod error;
 pub mod serde_helpers;
+pub mod verify;
 
 use sqlx::PgPool;
 use tracing::trace;
@@ -14,6 +15,8 @@ use crate::{rpc::response::ResponseResult, server::handler::RpcHandler};
 pub enum ApiRequest {
     #[serde(rename = "send_code", with = "sequence")]
     SendCode(String),
+    #[serde(rename = "verify_code")]
+    VerifyCode(String, String),
 }
 
 #[derive(Clone)]
@@ -32,6 +35,9 @@ impl HttpRpcHandler {
             ApiRequest::SendCode(email) => {
                 code::generate_code(&self.db, email).await.to_rpc_result()
             }
+            ApiRequest::VerifyCode(email, code) => verify::verify_code(&self.db, email, code)
+                .await
+                .to_rpc_result(),
         }
     }
 }
