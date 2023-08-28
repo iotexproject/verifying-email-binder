@@ -1,6 +1,12 @@
 verifying email binder
 ======================
 
+## Build
+
+```
+docker build -t verifying-email-binder .
+```
+
 ## Run
 
 ```
