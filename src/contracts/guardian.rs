@@ -15,12 +15,12 @@ abigen!(
     ]"#,
 );
 
-pub async fn contract(
+pub async fn get_hash(
     provider: Provider<Http>,
     guardian_address: &str,
     account: &str,
     email: &str,
-) -> Result<()> {
+) -> Result<[u8; 32]> {
     let client = Arc::new(provider);
     let address: Address = guardian_address
         .parse()
@@ -28,10 +28,9 @@ pub async fn contract(
     let account: Address = account.parse().expect("parse account address error");
     let guardian = IEmailGuardian::new(address, client);
 
-    let _ = guardian
+    let hash = guardian
         .get_hash(account, keccak256::<&str>(&email))
         .call()
-        .await;
-
-    Ok(())
+        .await?;
+    Ok(hash)
 }

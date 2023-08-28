@@ -23,7 +23,8 @@ async fn main() {
     let context = Context {
         db,
         provider,
-        guardian_address: env::var("RPC_URL").expect("RPC_URL must be set"),
+        guardian_address: env::var("GUARDIAN_ADDRESS").expect("GUARDIAN_ADDRESS must be set"),
+        signer: env::var("SIGNER").expect("SIGNER must be set"),
     };
 
     sqlx::migrate!()

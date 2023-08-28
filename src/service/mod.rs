@@ -24,6 +24,7 @@ pub struct Context {
     pub db: PgPool,
     pub provider: Provider<Http>,
     pub guardian_address: String,
+    pub signer: String,
 }
 
 #[derive(Clone)]
@@ -45,7 +46,7 @@ impl HttpRpcHandler {
                     .to_rpc_result()
             }
             ApiRequest::VerifyCode(account, email, code) => {
-                verify::verify_code(&self.context.db, account, email, code)
+                verify::verify_code(&self.context, account, email, code)
                     .await
                     .to_rpc_result()
             }
