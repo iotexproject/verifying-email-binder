@@ -37,11 +37,15 @@ pub async fn send_mails(db: &PgPool, key: &str, from: &str, host: &str) {
                         info!(target: "email", id = ?code.id, email = ?code.email, "send email success")
                     }
                     Err(err) => {
+                        println!("Send email error: {}", err);
                         error!(target: "email", id = ?code.id, email = ?code.email, err = ?err, "send email")
                     }
                 };
             }
         }
-        Err(err) => error!(target: "email", ?err, "query codes error"),
+        Err(err) => {
+            println!("Query codes error: {}", err);
+            error!(target: "email", ?err, "query codes error")
+        }
     }
 }

@@ -29,7 +29,7 @@ curl -X POST https://email-binder.testnet.iotex.io/ -H "Content-Type:application
     "id":1
 }'
 
-curl -X POST http://localhost:3000 -H "Content-Type:application/json" --data '{
+curl -X POST https://email-binder.testnet.iotex.io/ -H "Content-Type:application/json" --data '{
     "jsonrpc":"2.0",
                 "method":"verify_code",
                 "params": ["0x8803DAF0AB9Bad65a56F4D9AEcA56085491C299A", "test@test.com", "123456"],
