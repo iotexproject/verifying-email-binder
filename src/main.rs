@@ -1,10 +1,10 @@
-use std::env;
+use std::{env, time::Duration};
 
 use ethers::providers::{Http, Provider};
 use sqlx::postgres::PgPoolOptions;
 use verifying_email_binder::{
     server::handler::serve_http,
-    service::{Context, HttpRpcHandler},
+    service::{email::send_mails, Context, HttpRpcHandler},
 };
 
 #[tokio::main]
@@ -32,8 +32,23 @@ async fn main() {
         .await
         .expect("migrate database error");
 
+    tokio::spawn(async move {
+        loop {
+            let smtp_password = env::var("SMTP_PASSWORD").expect("SMTP_PASSWORD must be set");
+            let smtp_user = env::var("SMTP_USER").expect("SMTP_USER must be set");
+            let smtp_host = env::var("SMTP_HOST").expect("SMTP_HOST must be set");
+            let db = PgPoolOptions::new()
+                .max_connections(50)
+                .connect(&database_url)
+                .await
+                .expect("could not connect to database");
+            send_mails(&db, &smtp_password, &smtp_user, &smtp_host).await;
+            tokio::time::sleep(Duration::from_secs(30)).await;
+        }
+    });
+
     let http = HttpRpcHandler::new(context);
-    serve_http("127.0.0.1:3000".parse().unwrap(), http)
+    serve_http("0.0.0.0:3000".parse().unwrap(), http)
         .await
         .unwrap();
 }

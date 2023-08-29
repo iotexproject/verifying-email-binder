@@ -1,4 +1,5 @@
 pub mod code;
+pub mod email;
 pub mod error;
 pub mod serde_helpers;
 pub mod verify;
