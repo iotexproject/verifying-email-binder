@@ -34,7 +34,7 @@ pub async fn send_mails(db: &PgPool, key: &str, from: &str, host: &str) {
                         )
                         .execute(db)
                         .await;
-                        error!(target: "email", id = ?code.id, email = ?code.email, "send email success")
+                        info!(target: "email", id = ?code.id, email = ?code.email, "send email success")
                     }
                     Err(err) => {
                         error!(target: "email", id = ?code.id, email = ?code.email, err = ?err, "send email")
