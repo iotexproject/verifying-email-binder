@@ -1,6 +1,6 @@
 use lettre::{transport::smtp::authentication::Credentials, Message, SmtpTransport, Transport};
 use sqlx::PgPool;
-use tracing::error;
+use tracing::{error, info};
 
 use crate::service::code::BindCode;
 
@@ -34,6 +34,7 @@ pub async fn send_mails(db: &PgPool, key: &str, from: &str, host: &str) {
                         )
                         .execute(db)
                         .await;
+                        error!(target: "email", id = ?code.id, email = ?code.email, "send email success")
                     }
                     Err(err) => {
                         error!(target: "email", id = ?code.id, email = ?code.email, err = ?err, "send email")

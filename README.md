@@ -22,7 +22,7 @@ export SMTP_USER=iopay-recover@iotex.me
 ## API
 
 ```bash
-curl -X POST http://localhost:3000 -H "Content-Type:application/json" --data '{
+curl -X POST https://email-binder.testnet.iotex.io/ -H "Content-Type:application/json" --data '{
     "jsonrpc":"2.0",
                 "method":"send_code",
                 "params": ["0x8803DAF0AB9Bad65a56F4D9AEcA56085491C299A", "test@test.com"],

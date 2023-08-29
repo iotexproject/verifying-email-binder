@@ -21,7 +21,8 @@ pub async fn verify_code(
         &account, &email, &code, 1,
     ).fetch_all(&context.db).await?;
 
-    if codes.len() == 0 {
+    if codes.len() == 0 || codes[0].created_at.timestamp() + 360 < chrono::Local::now().timestamp()
+    {
         return Err(ServiceError::InvalidRequest("error code".to_string()));
     }
 
