@@ -1,7 +1,9 @@
 use chrono::{DateTime, Utc};
 use rand::Rng;
+use regex::Regex;
 use sqlx::PgPool;
 
+use super::error::ServiceError;
 use crate::service::error::Result;
 
 #[derive(Debug)]
@@ -16,6 +18,14 @@ pub struct BindCode {
 }
 
 pub async fn generate_code(db: &PgPool, account: String, email: String) -> Result<String> {
+    let email_regex = Regex::new(
+        r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,6})",
+    )
+    .unwrap();
+    if !email_regex.is_match(&email) {
+        return Err(ServiceError::InvalidRequest(String::from("invalid email")));
+    }
+
     let codes = sqlx::query_as!(
         BindCode,
         "select id, account, email, code, status, created_at, updated_at from bind_code where account = $1 and email = $2 order by id desc limit 1",
