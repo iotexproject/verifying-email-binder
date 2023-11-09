@@ -5,7 +5,7 @@ on:
     tags:
   push:
     branches:
-      - main
+      - build
   pull_request:
   workflow_dispatch:
 
