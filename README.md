@@ -12,7 +12,7 @@ docker build -t verifying-email-binder .
 ```
 export DATABASE_URL=postgres://aa_email:email@localhost:5432/aa_email
 export RPC_URL=https://babel-api.testnet.iotex.io
-export GUARDIAN_ADDRESS=0xd8F31BC1E49d800D8B6B2AAE27219f47b94F5890
+export GUARDIAN_ADDRESS=0xBf081D23317966eEBD59Bc8EDB593A830F373178
 export SIGNER={SIGNER_PRIVATE_KEY}
 export SMTP_PASSWORD=
 export SMTP_HOST=smtp.larksuite.com
