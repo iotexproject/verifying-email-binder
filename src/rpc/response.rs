@@ -68,7 +68,7 @@ pub enum Response {
 
 impl Response {
     pub fn error(err: RpcError) -> Self {
-        RpcResponse::new(Id::Null, RpcError::from(err)).into()
+        RpcResponse::new(Id::Null, err).into()
     }
 }
 

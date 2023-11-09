@@ -15,13 +15,11 @@ pub async fn verify_code(
     email: String,
     code: String,
 ) -> Result<String> {
-    let codes = sqlx::query_as!(
-        BindCode,
+    let codes = sqlx::query_as::<_, BindCode>(
         "select id, account, email, code, status, created_at, updated_at from bind_code where account = $1 and email = $2 and code = $3 and status = $4 order by id desc limit 1",
-        &account, &email, &code, 1,
-    ).fetch_all(&context.db).await?;
+    ).bind(&account).bind(&email).bind(&code).bind(1i16).fetch_all(&context.db).await?;
 
-    if codes.len() == 0 || codes[0].created_at.timestamp() + 360 < chrono::Local::now().timestamp()
+    if codes.is_empty() || codes[0].created_at.timestamp() + 360 < chrono::Local::now().timestamp()
     {
         return Err(ServiceError::InvalidRequest("error code".to_string()));
     }
@@ -43,15 +41,15 @@ pub async fn verify_code(
     };
     match wallet.sign_message(hash).await {
         Ok(s) => {
-            let _ = sqlx::query!(
+            let _ = sqlx::query(
                 r#"Update bind_code set status = $1, updated_at = now() where id = $2"#,
-                2,
-                codes[0].id,
             )
+            .bind(2i16)
+            .bind(codes[0].id)
             .execute(&context.db)
             .await?;
-            Ok(format!("0x{}", s.to_string()))
+            Ok(format!("0x{}", s))
         }
-        Err(err) => return Err(ServiceError::InvalidRequest(err.to_string())),
+        Err(err) => Err(ServiceError::InvalidRequest(err.to_string())),
     }
 }

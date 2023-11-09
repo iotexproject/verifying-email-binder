@@ -6,13 +6,13 @@ use sqlx::PgPool;
 use super::error::ServiceError;
 use crate::service::error::Result;
 
-#[derive(Debug)]
+#[derive(Debug, sqlx::FromRow)]
 pub struct BindCode {
     pub id: i32,
     pub account: String,
     pub email: String,
     pub code: String,
-    pub status: i32,
+    pub status: i16,
     pub created_at: DateTime<Utc>,
     pub updated_at: Option<DateTime<Utc>>,
 }
@@ -26,13 +26,11 @@ pub async fn generate_code(db: &PgPool, account: String, email: String) -> Resul
         return Err(ServiceError::InvalidRequest(String::from("invalid email")));
     }
 
-    let codes = sqlx::query_as!(
-        BindCode,
+    let codes = sqlx::query_as::<_, BindCode>(
         "select id, account, email, code, status, created_at, updated_at from bind_code where account = $1 and email = $2 order by id desc limit 1",
-        &account, &email
-    ).fetch_all(db).await?;
+    ).bind(&account).bind(&email).fetch_all(db).await?;
 
-    if codes.len() > 0
+    if !codes.is_empty()
         && codes[0].status < 2
         && codes[0].created_at.timestamp() + 300 > chrono::Local::now().timestamp()
     {
@@ -44,13 +42,13 @@ pub async fn generate_code(db: &PgPool, account: String, email: String) -> Resul
         rng.gen_range(100000..999999).to_string()
     };
 
-    let _ = sqlx::query!(
+    let _ = sqlx::query(
         r#"INSERT INTO bind_code(account, email, code, status) VALUES ($1, $2, $3, $4)"#,
-        &account,
-        &email,
-        &code,
-        0
     )
+    .bind(&account)
+    .bind(&email)
+    .bind(&code)
+    .bind(0i16)
     .execute(db)
     .await?;
     Ok("Success".to_string())

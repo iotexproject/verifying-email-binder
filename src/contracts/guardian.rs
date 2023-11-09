@@ -29,7 +29,7 @@ pub async fn get_hash(
     let guardian = IEmailGuardian::new(address, client);
 
     let hash = guardian
-        .get_hash(account, keccak256::<&str>(&email))
+        .get_hash(account, keccak256::<&str>(email))
         .call()
         .await?;
     Ok(hash)
